@@ -1,0 +1,27 @@
+name: Product Build
+
+on:
+  workflow_dispatch:
+ 
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Product Repository
+        uses: actions/checkout@v4
+
+      - name: Generate Version
+        id: version
+        shell: bash
+        run: |
+          BASE_VERSION=$(cat VERSION)
+          VERSION="${BASE_VERSION}-rc.${{ github.run_number }}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Generated Version: $VERSION"
+      - name: Build Firmware
+        run: |
+          echo "Building ${{ steps.version.outputs.version }}"
+      - name: Display Build Version
+        run: |
+          echo "Firmware Version: ${{ steps.version.outputs.version }}"

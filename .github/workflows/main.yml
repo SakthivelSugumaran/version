@@ -34,7 +34,7 @@ jobs:
           mkdir -p release-artifacts
 
           # Replace with actual firmware artifact paths
-          cp release/release-manifest.json release-artifacts/
+          # cp release/release-manifest.json release-artifacts/
 
           echo "$VERSION" > release-artifacts/version.txt
 

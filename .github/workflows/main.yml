@@ -25,3 +25,55 @@ jobs:
       - name: Display Build Version
         run: |
           echo "Firmware Version: ${{ steps.version.outputs.version }}"
+
+      - name: Package Firmware
+        shell: bash
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+
+          mkdir -p release-artifacts
+
+          # Replace with actual firmware artifact paths
+          cp release/release-manifest.json release-artifacts/
+
+          echo "$VERSION" > release-artifacts/version.txt
+
+      - name: Create Git Tag
+        if: success()
+        shell: bash
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          if git ls-remote --exit-code --tags origin "refs/tags/$VERSION" >/dev/null 2>&1; then
+            echo "Tag already exists: $VERSION"
+            exit 1
+          fi
+
+          git tag -a "$VERSION" -m "Product Release Candidate $VERSION"
+          git push origin "$VERSION"
+
+          echo "Tag created: $VERSION"
+
+      # ---------------------------------------
+      # Package Artifact
+      # ---------------------------------------
+      - name: Package Firmware
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+
+          # Replace with actual artifact/package command
+          mkdir -p release-artifacts
+          echo "$VERSION" > release-artifacts/version.txt
+
+      # ---------------------------------------
+      # Upload Artifact
+      # ---------------------------------------
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware-${{ steps.version.outputs.version }}
+          path: release-artifacts/
+          retention-days: 90
